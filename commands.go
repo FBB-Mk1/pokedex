@@ -1,18 +1,24 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"os"
 )
 
-type cliCommand struct {
+type CliCommand struct {
 	name        string
 	description string
-	callback    func() error
+	callback    func(*Config) error
 }
 
-func getCommands() map[string]cliCommand {
-	return map[string]cliCommand{
+type Config struct {
+	next     string
+	previous *string
+}
+
+func getCommands() map[string]CliCommand {
+	return map[string]CliCommand{
 		"help": {
 			name:        "help",
 			description: "Displays a help message",
@@ -36,17 +42,30 @@ func getCommands() map[string]cliCommand {
 	}
 }
 
-func commandMap() error {
-	//todo
+func commandMap(config *Config) error {
+	local := getLocation(config.next)
+	config.next = local.Next
+	config.previous = local.Previous
+	for _, loc := range local.Results {
+		fmt.Println(loc.Name)
+	}
 	return nil
 }
 
-func commandMapb() error {
-	//todo
+func commandMapb(config *Config) error {
+	if config.previous == nil {
+		return errors.New("at start of list")
+	}
+	local := getLocation(*config.previous)
+	config.next = local.Next
+	config.previous = local.Previous
+	for _, loc := range local.Results {
+		fmt.Println(loc.Name)
+	}
 	return nil
 }
 
-func commandHelp() error {
+func commandHelp(*Config) error {
 	commands := getCommands()
 	fmt.Println("========POKEDEX========")
 	fmt.Println("Welcome to the Pokedex!")
@@ -58,7 +77,7 @@ func commandHelp() error {
 	return nil
 }
 
-func commandExit() error {
+func commandExit(*Config) error {
 	fmt.Println("Bye Bye")
 	os.Exit(0)
 	return nil
