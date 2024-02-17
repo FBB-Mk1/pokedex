@@ -5,13 +5,15 @@ import (
 	"fmt"
 	"os"
 	"strings"
+
+	"github.com/fbb-mk1/pokedex/internal/pkcache"
 )
 
-func StartRepl() {
+func StartRepl(cache pkcache.Cache) {
 	fmt.Println("Welcome:")
 	fmt.Println("type help for commands")
 	reader := bufio.NewReader(os.Stdin)
-	var globalConfig = Config{"https://pokeapi.co/api/v2/location-area/", nil}
+	var globalConfig = Config{cache, "https://pokeapi.co/api/v2/location-area/", nil}
 	for {
 		fmt.Print("Type > ")
 		text, _ := reader.ReadString('\n')

@@ -4,6 +4,8 @@ import (
 	"errors"
 	"fmt"
 	"os"
+
+	"github.com/fbb-mk1/pokedex/internal/pkcache"
 )
 
 type CliCommand struct {
@@ -13,6 +15,7 @@ type CliCommand struct {
 }
 
 type Config struct {
+	cache    pkcache.Cache
 	next     string
 	previous *string
 }
@@ -43,10 +46,14 @@ func getCommands() map[string]CliCommand {
 }
 
 func commandMap(config *Config) error {
-	local := getLocation(config.next)
-	config.next = local.Next
-	config.previous = local.Previous
-	for _, loc := range local.Results {
+	local, ok := config.cache.Get(config.next)
+	if !ok {
+		local = getLocation(config.next)
+	}
+	l := getLocationValues(local)
+	config.next = l.Next
+	config.previous = l.Previous
+	for _, loc := range l.Results {
 		fmt.Println(loc.Name)
 	}
 	return nil
@@ -56,10 +63,14 @@ func commandMapb(config *Config) error {
 	if config.previous == nil {
 		return errors.New("at start of list")
 	}
-	local := getLocation(*config.previous)
-	config.next = local.Next
-	config.previous = local.Previous
-	for _, loc := range local.Results {
+	local, ok := config.cache.Get(*config.previous)
+	if !ok {
+		local = getLocation(*config.previous)
+	}
+	l := getLocationValues(local)
+	config.next = l.Next
+	config.previous = l.Previous
+	for _, loc := range l.Results {
 		fmt.Println(loc.Name)
 	}
 	return nil

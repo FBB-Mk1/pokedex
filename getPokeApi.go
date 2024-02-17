@@ -8,7 +8,7 @@ import (
 	"net/http"
 )
 
-func getLocation(url string) LocationArea {
+func getLocation(url string) []byte {
 	res, err := http.Get(url)
 	if err != nil {
 		log.Fatal("You Suck", err)
@@ -22,8 +22,12 @@ func getLocation(url string) LocationArea {
 	if err != nil {
 		log.Fatal(err)
 	}
+	return body
+}
+
+func getLocationValues(body []byte) LocationArea {
 	var local LocationArea
-	err = json.Unmarshal(body, &local)
+	err := json.Unmarshal(body, &local)
 	if err != nil {
 		log.Fatal(err)
 	}
