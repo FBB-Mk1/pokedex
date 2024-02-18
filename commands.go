@@ -109,6 +109,19 @@ func commandExplore(config *Config, p ...string) error {
 	if p == nil {
 		return errors.New("include an area name or ID")
 	}
-	fmt.Println(p[0])
+	search := "https://pokeapi.co/api/v2/location-area/" + p[0]
+	result, ok := config.cache.Get(search)
+	if !ok {
+		result = getLocation(search)
+		config.cache.Add(search, result)
+	}
+	values, err := getExploreValues(result)
+	if err != nil {
+		return err
+	}
+	fmt.Println("Exploring: " + values.Name)
+	for _, poke := range values.PokemonEncounters {
+		fmt.Println(poke.Pokemon.Name)
+	}
 	return nil
 }

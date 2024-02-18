@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -32,4 +33,13 @@ func getLocationValues(body []byte) LocationArea {
 		log.Fatal(err)
 	}
 	return local
+}
+
+func getExploreValues(body []byte) (Location, error) {
+	var local Location
+	err := json.Unmarshal(body, &local)
+	if err != nil {
+		return Location{}, errors.New("location not found")
+	}
+	return local, nil
 }

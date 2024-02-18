@@ -22,7 +22,11 @@ func StartRepl(cache pkcache.Cache) {
 		text := strings.Split(strings.Replace(input, "\r\n", "", -1), " ")
 		command, ok := getCommands()[text[0]]
 		if ok {
-			err := command.callback(&globalConfig, text[1])
+			arg := " "
+			if len(text) > 1 {
+				arg = text[1]
+			}
+			err := command.callback(&globalConfig, arg)
 			if err != nil {
 				fmt.Println(err)
 			}
