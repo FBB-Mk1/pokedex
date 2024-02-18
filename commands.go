@@ -49,10 +49,13 @@ func commandMap(config *Config) error {
 	local, ok := config.cache.Get(config.next)
 	if !ok {
 		local = getLocation(config.next)
+		config.cache.Add(config.next, local)
+		fmt.Println("=========NotCached=========")
 	}
 	l := getLocationValues(local)
 	config.next = l.Next
 	config.previous = l.Previous
+	fmt.Println(l.Next)
 	for _, loc := range l.Results {
 		fmt.Println(loc.Name)
 	}
@@ -66,6 +69,8 @@ func commandMapb(config *Config) error {
 	local, ok := config.cache.Get(*config.previous)
 	if !ok {
 		local = getLocation(*config.previous)
+		config.cache.Add(*config.previous, local)
+		fmt.Println("=========NotCached=========")
 	}
 	l := getLocationValues(local)
 	config.next = l.Next
