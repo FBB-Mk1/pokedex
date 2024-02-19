@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/fbb-mk1/pokedex/internal/pkcache"
 )
@@ -54,10 +55,17 @@ func getCommands() map[string]CliCommand {
 func commandMap(config *Config, p ...string) error {
 	local, ok := config.cache.Get(config.nextLocationsURL)
 	if !ok {
-		local = getLocation(config.nextLocationsURL)
+		l, err := getLocation(config.nextLocationsURL)
+		if err != nil {
+			return err
+		}
+		local = l
 		config.cache.Add(config.nextLocationsURL, local)
 	}
-	l := getLocationValues(local)
+	l, err := getLocationValues(local)
+	if err != nil {
+		return err
+	}
 	config.nextLocationsURL = l.Next
 	config.previousLocationsURL = l.Previous
 	fmt.Println("ID: Area Name")
@@ -75,14 +83,23 @@ func commandMapb(config *Config, p ...string) error {
 	}
 	local, ok := config.cache.Get(*config.previousLocationsURL)
 	if !ok {
-		local = getLocation(*config.previousLocationsURL)
+		l, err := getLocation(*config.previousLocationsURL)
+		if err != nil {
+			return err
+		}
+		local = l
 		config.cache.Add(*config.previousLocationsURL, local)
 	}
-	l := getLocationValues(local)
+	l, err := getLocationValues(local)
+	if err != nil {
+		return err
+	}
 	config.nextLocationsURL = l.Next
 	config.previousLocationsURL = l.Previous
 	for _, loc := range l.Results {
-		fmt.Println(loc.Name)
+		id := strings.Split(loc.URL, "/")
+		line := fmt.Sprintf("%v: %v", id[len(id)-2], loc.Name)
+		fmt.Println(line)
 	}
 	return nil
 }
@@ -106,20 +123,25 @@ func commandExit(*Config, ...string) error {
 }
 
 func commandExplore(config *Config, p ...string) error {
-	if p == nil {
+	if p[0] == " " {
 		return errors.New("include an area name or ID")
 	}
 	search := "https://pokeapi.co/api/v2/location-area/" + p[0]
 	result, ok := config.cache.Get(search)
 	if !ok {
-		result = getLocation(search)
+		r, err := getLocation(search)
+		if err != nil {
+			return err
+		}
+		result = r
 		config.cache.Add(search, result)
 	}
 	values, err := getExploreValues(result)
 	if err != nil {
 		return err
 	}
-	fmt.Println("Exploring: " + values.Name)
+	fmt.Println("Exploring: " + values.Name + "...")
+	time.Sleep(time.Second * 2)
 	for _, poke := range values.PokemonEncounters {
 		fmt.Println(poke.Pokemon.Name)
 	}
