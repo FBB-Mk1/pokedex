@@ -15,8 +15,6 @@ func getLocation(url string) ([]byte, error) {
 		log.Fatal("You Suck", err)
 	}
 	body, err := io.ReadAll(res.Body)
-	fmt.Println(res.Body)
-	fmt.Println(res.StatusCode)
 	defer res.Body.Close()
 	if res.StatusCode > 299 {
 		e := fmt.Sprintf("Response failed with status code: %d and\nbody: %s\n", res.StatusCode, body)

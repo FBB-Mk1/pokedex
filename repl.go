@@ -15,7 +15,10 @@ func StartRepl(cache pkcache.Cache) {
 	reader := bufio.NewReader(os.Stdin)
 	var globalConfig = Config{cache,
 		"https://pokeapi.co/api/v2/location-area/",
-		nil}
+		nil,
+		map[string]string{},
+	}
+
 	for {
 		fmt.Print("Pokedex > ")
 		input, _ := reader.ReadString('\n')

@@ -20,6 +20,7 @@ type Config struct {
 	cache                pkcache.Cache
 	nextLocationsURL     string
 	previousLocationsURL *string
+	seenPokemon          map[string]string
 }
 
 func getCommands() map[string]CliCommand {
@@ -47,6 +48,11 @@ func getCommands() map[string]CliCommand {
 		"explore": {
 			name:        "explore",
 			description: "Check for pokemons in a specific area, using area ID or Name",
+			callback:    commandExplore,
+		},
+		"catch": {
+			name:        "catch",
+			description: "Try to catch a pokemon that you have seen while exploring",
 			callback:    commandExplore,
 		},
 	}
@@ -144,6 +150,7 @@ func commandExplore(config *Config, p ...string) error {
 	time.Sleep(time.Second * 2)
 	fmt.Println("Found Pokemon:")
 	for _, poke := range values.PokemonEncounters {
+		config.seenPokemon[poke.Pokemon.Name] = values.Name
 		fmt.Println(" - " + poke.Pokemon.Name)
 	}
 	return nil
