@@ -142,8 +142,9 @@ func commandExplore(config *Config, p ...string) error {
 	}
 	fmt.Println("Exploring: " + values.Name + "...")
 	time.Sleep(time.Second * 2)
+	fmt.Println("Found Pokemon:")
 	for _, poke := range values.PokemonEncounters {
-		fmt.Println(poke.Pokemon.Name)
+		fmt.Println(" - " + poke.Pokemon.Name)
 	}
 	return nil
 }
