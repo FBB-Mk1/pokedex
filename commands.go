@@ -61,6 +61,11 @@ func getCommands() map[string]CliCommand {
 			description: "Inspect a pokemon that you have caugth",
 			callback:    commandInspect,
 		},
+		"pokedex": {
+			name:        "pokedex",
+			description: "Show the pokemon in your pokedex, the ones you caught have an asterisk next to their names",
+			callback:    commandPokedex,
+		},
 	}
 }
 
@@ -219,16 +224,14 @@ func commandInspect(config *Config, p ...string) error {
 	return nil
 }
 
-// Name: pidgey
-// Height: 3
-// Weight: 18
-// Stats:
-//   -hp: 40
-//   -attack: 45
-//   -defense: 40
-//   -special-attack: 35
-//   -special-defense: 35
-//   -speed: 56
-// Types:
-//   - normal
-//   - flying
+func commandPokedex(config *Config, p ...string) error {
+	fmt.Println("Your pokedex:")
+	for k, v := range config.pokedex {
+		line := fmt.Sprintf(" - %v", k)
+		if v.caugth {
+			line += "*"
+		}
+		fmt.Println(line)
+	}
+	return nil
+}
