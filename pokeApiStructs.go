@@ -63,7 +63,13 @@ type Location struct {
 	} `json:"pokemon_encounters"`
 }
 
-type PokemonFull struct {
+type PokedexEntry struct {
+	seen   bool
+	caugth bool
+	entry  Pokemon
+}
+
+type Pokemon struct {
 	Abilities []struct {
 		Ability struct {
 			Name string `json:"name"`

@@ -20,7 +20,7 @@ type Config struct {
 	cache                pkcache.Cache
 	nextLocationsURL     string
 	previousLocationsURL *string
-	seenPokemon          map[string]string
+	pokedex              map[string]PokedexEntry
 }
 
 func getCommands() map[string]CliCommand {
@@ -150,7 +150,10 @@ func commandExplore(config *Config, p ...string) error {
 	time.Sleep(time.Second * 2)
 	fmt.Println("Found Pokemon:")
 	for _, poke := range values.PokemonEncounters {
-		config.seenPokemon[poke.Pokemon.Name] = values.Name
+		_, ok := config.pokedex[poke.Pokemon.Name]
+		if !ok {
+			config.pokedex[poke.Pokemon.Name] = PokedexEntry{seen: true, caugth: false, entry: Pokemon{}}
+		}
 		fmt.Println(" - " + poke.Pokemon.Name)
 	}
 	return nil

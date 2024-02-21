@@ -16,7 +16,7 @@ func StartRepl(cache pkcache.Cache) {
 	var globalConfig = Config{cache,
 		"https://pokeapi.co/api/v2/location-area/",
 		nil,
-		map[string]string{},
+		map[string]PokedexEntry{},
 	}
 
 	for {
