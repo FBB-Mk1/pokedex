@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"fmt"
+	"math/rand"
 	"os"
 	"strings"
 	"time"
@@ -53,7 +54,7 @@ func getCommands() map[string]CliCommand {
 		"catch": {
 			name:        "catch",
 			description: "Try to catch a pokemon that you have seen while exploring",
-			callback:    commandExplore,
+			callback:    commandCatch,
 		},
 	}
 }
@@ -61,7 +62,7 @@ func getCommands() map[string]CliCommand {
 func commandMap(config *Config, p ...string) error {
 	local, ok := config.cache.Get(config.nextLocationsURL)
 	if !ok {
-		l, err := getLocation(config.nextLocationsURL)
+		l, err := getBodyData(config.nextLocationsURL)
 		if err != nil {
 			return err
 		}
@@ -89,7 +90,7 @@ func commandMapb(config *Config, p ...string) error {
 	}
 	local, ok := config.cache.Get(*config.previousLocationsURL)
 	if !ok {
-		l, err := getLocation(*config.previousLocationsURL)
+		l, err := getBodyData(*config.previousLocationsURL)
 		if err != nil {
 			return err
 		}
@@ -135,7 +136,7 @@ func commandExplore(config *Config, p ...string) error {
 	search := "https://pokeapi.co/api/v2/location-area/" + p[0]
 	result, ok := config.cache.Get(search)
 	if !ok {
-		r, err := getLocation(search)
+		r, err := getBodyData(search)
 		if err != nil {
 			return err
 		}
@@ -157,4 +158,40 @@ func commandExplore(config *Config, p ...string) error {
 		fmt.Println(" - " + poke.Pokemon.Name)
 	}
 	return nil
+}
+
+func commandCatch(config *Config, p ...string) error {
+	entry, ok := config.pokedex[p[0]]
+	if !ok {
+		return errors.New("unknown pokemon, keep exploring to find more")
+	}
+	if entry.caugth {
+		return errors.New("pokemon already caugth! Keep exploring to find more")
+	}
+	search := "https://pokeapi.co/api/v2/pokemon/" + p[0]
+	resBody, err := getBodyData(search)
+	if err != nil {
+		return err
+	}
+	pokeData, err := getPokemonValues(resBody)
+	if err != nil {
+		return err
+	}
+	fmt.Println("Throwing a pokeball at", pokeData.Name)
+	caught := caughtPokemon(pokeData.BaseExperience)
+	msg := pokeData.Name
+	time.Sleep(time.Second * 1)
+	if caught {
+		entry.entry = pokeData
+		entry.caugth = true
+		msg += " was caught!"
+	} else {
+		msg += " escaped!"
+	}
+	fmt.Println(msg)
+	return nil
+}
+
+func caughtPokemon(exp int) bool {
+	return 50 > rand.Intn(exp)
 }

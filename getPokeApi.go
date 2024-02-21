@@ -9,7 +9,7 @@ import (
 	"net/http"
 )
 
-func getLocation(url string) ([]byte, error) {
+func getBodyData(url string) ([]byte, error) {
 	res, err := http.Get(url)
 	if err != nil {
 		log.Fatal("You Suck", err)
@@ -42,4 +42,13 @@ func getExploreValues(body []byte) (Location, error) {
 		return Location{}, errors.New("location not found")
 	}
 	return local, nil
+}
+
+func getPokemonValues(body []byte) (Pokemon, error) {
+	var poke Pokemon
+	err := json.Unmarshal(body, &poke)
+	if err != nil {
+		return Pokemon{}, errors.New("location not found")
+	}
+	return poke, nil
 }
