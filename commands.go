@@ -56,6 +56,11 @@ func getCommands() map[string]CliCommand {
 			description: "Try to catch a pokemon that you have seen while exploring",
 			callback:    commandCatch,
 		},
+		"inspect": {
+			name:        "inspect",
+			description: "Inspect a pokemon that you have caugth",
+			callback:    commandInspect,
+		},
 	}
 }
 
@@ -178,12 +183,11 @@ func commandCatch(config *Config, p ...string) error {
 		return err
 	}
 	fmt.Println("Throwing a pokeball at", pokeData.Name)
-	caught := caughtPokemon(pokeData.BaseExperience)
+	caught := 50 > rand.Intn(pokeData.BaseExperience)
 	msg := pokeData.Name
 	time.Sleep(time.Second * 1)
 	if caught {
-		entry.entry = pokeData
-		entry.caugth = true
+		config.pokedex[p[0]] = PokedexEntry{seen: true, caugth: true, entry: pokeData}
 		msg += " was caught!"
 	} else {
 		msg += " escaped!"
@@ -192,6 +196,39 @@ func commandCatch(config *Config, p ...string) error {
 	return nil
 }
 
-func caughtPokemon(exp int) bool {
-	return 50 > rand.Intn(exp)
+func commandInspect(config *Config, p ...string) error {
+	pokemon, ok := config.pokedex[p[0]]
+	if !ok {
+		return errors.New("unknown pokemon, try exploring and catching new ones")
+	}
+	if !pokemon.caugth {
+		return errors.New("pokemon not caught yet")
+	}
+	poke := pokemon.entry
+	fmt.Println("Name:", poke.Name)
+	fmt.Println("Height:", poke.Height)
+	fmt.Println("Weight:", poke.Weight)
+	fmt.Println("Stats:")
+	for _, val := range poke.Stats {
+		fmt.Printf("  -%v: %v\n", val.Stat.Name, val.BaseStat)
+	}
+	fmt.Println("Types:")
+	for _, val := range poke.Types {
+		fmt.Printf("  - %v\n", val.Type.Name)
+	}
+	return nil
 }
+
+// Name: pidgey
+// Height: 3
+// Weight: 18
+// Stats:
+//   -hp: 40
+//   -attack: 45
+//   -defense: 40
+//   -special-attack: 35
+//   -special-defense: 35
+//   -speed: 56
+// Types:
+//   - normal
+//   - flying
